@@ -14,6 +14,8 @@ import {
   Row,
   Col,
   Dropdown,
+  Tabs,
+  Typography,
 } from 'antd';
 import {
   PlusOutlined,
@@ -24,11 +26,16 @@ import {
   PhoneOutlined,
   MailOutlined,
   UserOutlined,
+  LinkOutlined,
+  ClockCircleOutlined,
+  CalendarOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import type { MenuProps } from 'antd';
 
+const { Text } = Typography;
 const { Option } = Select;
+const { TextArea } = Input;
 
 interface CustomerType {
   key: string;
@@ -37,11 +44,22 @@ interface CustomerType {
   contact: string;
   phone: string;
   email: string;
+  address: {
+    province: string;
+    city: string;
+    detail: string;
+  };
+  website: string;
+  industry: string;
+  size: string;
+  source: string;
   status: string;
   level: string;
-  source: string;
-  createdAt: string;
   lastContact: string;
+  nextContact: string;
+  remark: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const CustomerList: React.FC = () => {
@@ -59,11 +77,22 @@ const CustomerList: React.FC = () => {
       contact: '张经理',
       phone: '13800138000',
       email: 'zhang@example.com',
+      address: {
+        province: '浙江省',
+        city: '杭州市',
+        detail: '西湖区工专路 77 号',
+      },
+      website: 'www.alibaba.com',
+      industry: '互联网',
+      size: '10000人以上',
+      source: '网站注册',
       status: 'active',
       level: 'A',
-      source: '网站注册',
-      createdAt: '2024-01-01',
       lastContact: '2024-03-20',
+      nextContact: '2024-03-25',
+      remark: '重点客户，需要持续跟进',
+      createdAt: '2024-01-01',
+      updatedAt: '2024-03-20',
     },
     {
       key: '2',
@@ -72,11 +101,22 @@ const CustomerList: React.FC = () => {
       contact: '李总',
       phone: '13800138001',
       email: 'li@example.com',
+      address: {
+        province: '广东省',
+        city: '深圳市',
+        detail: '南山区科技园',
+      },
+      website: 'www.tencent.com',
+      industry: '互联网',
+      size: '50000人以上',
+      source: '销售推荐',
       status: 'inactive',
       level: 'B',
-      source: '销售推荐',
-      createdAt: '2024-01-02',
       lastContact: '2024-03-19',
+      nextContact: '2024-03-24',
+      remark: '一般客户，需要定期跟进',
+      createdAt: '2024-01-02',
+      updatedAt: '2024-03-19',
     },
   ];
 
@@ -98,32 +138,78 @@ const CustomerList: React.FC = () => {
     },
   ];
 
+  // 添加更多选项配置
+  const industryOptions = [
+    { label: '互联网', value: 'internet' },
+    { label: '金融', value: 'finance' },
+    { label: '制造业', value: 'manufacture' },
+    { label: '教育', value: 'education' },
+    { label: '医疗', value: 'medical' },
+  ];
+
+  const sizeOptions = [
+    { label: '0-50人', value: 'xs' },
+    { label: '51-200人', value: 'sm' },
+    { label: '201-1000人', value: 'md' },
+    { label: '1001-10000人', value: 'lg' },
+    { label: '10000人以上', value: 'xl' },
+  ];
+
+  // 更新表格列配置
   const columns: ColumnsType<CustomerType> = [
     {
-      title: '客户名称',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: string, record: CustomerType) => (
-        <Space>
-          <UserOutlined />
-          <span>{text}</span>
-          <Tag>{record.company}</Tag>
+      title: '客户信息',
+      key: 'info',
+      fixed: 'left',
+      width: 250,
+      render: (_, record) => (
+        <Space direction="vertical" size={0}>
+          <Space>
+            <UserOutlined />
+            <Text strong>{record.company}</Text>
+            <Tag color={record.level === 'A' ? 'red' : record.level === 'B' ? 'orange' : 'blue'}>
+              {record.level}级客户
+            </Tag>
+          </Space>
+          <Text type="secondary">{record.industry} | {record.size}</Text>
+          <Space>
+            <LinkOutlined />
+            <a href={`http://${record.website}`} target="_blank" rel="noopener noreferrer">
+              {record.website}
+            </a>
+          </Space>
         </Space>
       ),
     },
     {
-      title: '联系方式',
+      title: '联系信息',
       key: 'contact',
+      width: 200,
       render: (_, record) => (
-        <Space direction="vertical" size="small">
+        <Space direction="vertical" size={0}>
+          <Space>
+            <UserOutlined />
+            <Text>{record.contact}</Text>
+          </Space>
           <Space>
             <PhoneOutlined />
-            {record.phone}
+            <Text copyable>{record.phone}</Text>
           </Space>
           <Space>
             <MailOutlined />
-            {record.email}
+            <Text copyable>{record.email}</Text>
           </Space>
+        </Space>
+      ),
+    },
+    {
+      title: '地址',
+      key: 'address',
+      width: 250,
+      render: (_, record) => (
+        <Space direction="vertical" size={0}>
+          <Text>{record.address.province} {record.address.city}</Text>
+          <Text type="secondary">{record.address.detail}</Text>
         </Space>
       ),
     },
@@ -176,16 +262,21 @@ const CustomerList: React.FC = () => {
       onFilter: (value: any, record) => record.status === value,
     },
     {
-      title: '最近联系',
-      dataIndex: 'lastContact',
-      key: 'lastContact',
-      sorter: (a, b) => new Date(a.lastContact).getTime() - new Date(b.lastContact).getTime(),
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      sorter: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      title: '联系记录',
+      key: 'contactRecord',
+      width: 200,
+      render: (_, record) => (
+        <Space direction="vertical" size={0}>
+          <Space>
+            <ClockCircleOutlined />
+            <Text>上次：{record.lastContact}</Text>
+          </Space>
+          <Space>
+            <CalendarOutlined />
+            <Text>下次：{record.nextContact}</Text>
+          </Space>
+        </Space>
+      ),
     },
     {
       title: '操作',
@@ -239,7 +330,7 @@ const CustomerList: React.FC = () => {
 
   const handleDelete = (key: string) => {
     Modal.confirm({
-      title: '确认删除',
+      title: '确认��除',
       content: '确定要删除这个客户吗？',
       onOk() {
         setDataSource(dataSource.filter(item => item.key !== key));
@@ -316,7 +407,7 @@ const CustomerList: React.FC = () => {
         open={isModalVisible}
         onOk={handleSubmit}
         onCancel={() => setIsModalVisible(false)}
-        width={720}
+        width={800}
         destroyOnClose
       >
         <Form
@@ -324,105 +415,161 @@ const CustomerList: React.FC = () => {
           layout="vertical"
           initialValues={{ status: 'active', level: 'C' }}
         >
-          <Row gutter={16}>
-            <Col span={12}>
+          <Tabs>
+            <Tabs.TabPane tab="基本信息" key="basic">
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="company"
+                    label="公司名称"
+                    rules={[{ required: true, message: '请输入公司名称' }]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="website"
+                    label="公司网站"
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="industry"
+                    label="所属行业"
+                    rules={[{ required: true, message: '请选择所属行业' }]}
+                  >
+                    <Select options={industryOptions} />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="size"
+                    label="公司规模"
+                    rules={[{ required: true, message: '请选择公司规模' }]}
+                  >
+                    <Select options={sizeOptions} />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="联系信息" key="contact">
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="contact"
+                    label="联系人"
+                    rules={[{ required: true, message: '请输入联系人' }]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="phone"
+                    label="联系电话"
+                    rules={[
+                      { required: true, message: '请输入联系电话' },
+                      { pattern: /^1\d{10}$/, message: '请输入有效的手机号码' },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="email"
+                    label="电子邮箱"
+                    rules={[
+                      { required: true, message: '请输入电子邮箱' },
+                      { type: 'email', message: '请输入有效的邮箱地址' },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name={['address', 'province']}
+                    label="所在省份"
+                    rules={[{ required: true, message: '请选择所在省份' }]}
+                  >
+                    <Select>
+                      <Option value="浙江省">浙江省</Option>
+                      {/* 可以添加更多省份选项 */}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name={['address', 'city']}
+                    label="所在城市"
+                    rules={[{ required: true, message: '请选择所在城市' }]}
+                  >
+                    <Select>
+                      <Option value="杭州市">杭州市</Option>
+                      {/* 可以添加更多城市选项 */}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name={['address', 'detail']}
+                    label="详细地址"
+                    rules={[{ required: true, message: '请输入详细地址' }]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="其他信息" key="other">
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="level"
+                    label="客户等级"
+                    rules={[{ required: true, message: '请选择客户等级' }]}
+                  >
+                    <Select>
+                      <Option value="A">A级</Option>
+                      <Option value="B">B级</Option>
+                      <Option value="C">C级</Option>
+                      <Option value="D">D级</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="source"
+                    label="客户来源"
+                    rules={[{ required: true, message: '请选择客户来源' }]}
+                  >
+                    <Select>
+                      <Option value="网站注册">网站注册</Option>
+                      <Option value="销售推荐">销售推荐</Option>
+                      <Option value="广告投放">广告投放</Option>
+                      <Option value="合作伙伴">合作伙伴</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
               <Form.Item
-                name="name"
-                label="客户名称"
-                rules={[{ required: true, message: '请输入客户名称' }]}
+                name="remark"
+                label="备注"
               >
-                <Input />
+                <TextArea rows={4} />
               </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="company"
-                label="公司名称"
-                rules={[{ required: true, message: '请输入公司名称' }]}
-              >
-                <Input />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="contact"
-                label="联系人"
-                rules={[{ required: true, message: '请输入联系人' }]}
-              >
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="phone"
-                label="联系电话"
-                rules={[
-                  { required: true, message: '请输入联系电话' },
-                  { pattern: /^1\d{10}$/, message: '请输入有效的手机号码' },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="email"
-                label="电子邮箱"
-                rules={[
-                  { required: true, message: '请输入电子邮箱' },
-                  { type: 'email', message: '请输入有效的邮箱地址' },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="level"
-                label="客户等级"
-                rules={[{ required: true, message: '请选择客户等级' }]}
-              >
-                <Select>
-                  <Option value="A">A级</Option>
-                  <Option value="B">B级</Option>
-                  <Option value="C">C级</Option>
-                  <Option value="D">D级</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="source"
-                label="客户来源"
-                rules={[{ required: true, message: '请选择客户来源' }]}
-              >
-                <Select>
-                  <Option value="网站注册">网站注册</Option>
-                  <Option value="销售推荐">销售推荐</Option>
-                  <Option value="广告投放">广告投放</Option>
-                  <Option value="合作伙伴">合作伙伴</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="status"
-                label="状态"
-                rules={[{ required: true, message: '请选择状态' }]}
-              >
-                <Select>
-                  <Option value="active">活跃</Option>
-                  <Option value="inactive">非活跃</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
+            </Tabs.TabPane>
+          </Tabs>
         </Form>
       </Modal>
     </Card>

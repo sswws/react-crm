@@ -28,6 +28,16 @@ const ProductList = lazy(() => import('@/pages/ProductManagement/ProductList'));
 const CategoryList = lazy(() => import('@/pages/ProductManagement/CategoryList'));
 const Login = lazy(() => import('@/pages/Auth/Login'));
 const Register = lazy(() => import('@/pages/Auth/Register'));
+const ForgotPassword = lazy(() => import('@/pages/Auth/ForgotPassword'));
+const TicketList = lazy(() => import('@/pages/ServiceManagement/TicketList'));
+const Analytics = lazy(() => import('@/pages/Analytics'));
+const PaymentList = lazy(() => import('@/pages/FinanceManagement/PaymentList'));
+const InvoiceList = lazy(() => import('@/pages/FinanceManagement/InvoiceList'));
+const ReceivableList = lazy(() => import('@/pages/FinanceManagement/ReceivableList'));
+const FinanceAnalytics = lazy(() => import('@/pages/FinanceManagement/FinanceAnalytics'));
+const ApprovalManagement = lazy(() => import('@/pages/ApprovalManagement'));
+const NotificationCenter = lazy(() => import('@/pages/NotificationCenter'));
+const ScheduleManagement = lazy(() => import('@/pages/ScheduleManagement'));
 
 export const routes: RouteObject[] = [
   {
@@ -37,6 +47,10 @@ export const routes: RouteObject[] = [
   {
     path: '/register',
     element: <Register />,
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotPassword />,
   },
   {
     path: '/',
@@ -190,6 +204,88 @@ export const routes: RouteObject[] = [
         ),
       },
     ],
+  },
+  {
+    path: 'service',
+    children: [
+      {
+        path: 'tickets',
+        element: (
+          <AuthGuard requiredPermissions={['service.tickets.view']}>
+            <TicketList />
+          </AuthGuard>
+        ),
+      },
+    ],
+  },
+  {
+    path: 'analytics',
+    element: (
+      <AuthGuard requiredPermissions={['analytics.view']}>
+        <Analytics />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: 'finance',
+    children: [
+      {
+        path: 'payments',
+        element: (
+          <AuthGuard requiredPermissions={['finance.payments.view']}>
+            <PaymentList />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'invoices',
+        element: (
+          <AuthGuard requiredPermissions={['finance.invoices.view']}>
+            <InvoiceList />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'receivables',
+        element: (
+          <AuthGuard requiredPermissions={['finance.receivables.view']}>
+            <ReceivableList />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'analytics',
+        element: (
+          <AuthGuard requiredPermissions={['finance.analytics.view']}>
+            <FinanceAnalytics />
+          </AuthGuard>
+        ),
+      },
+    ],
+  },
+  {
+    path: 'approvals',
+    element: (
+      <AuthGuard requiredPermissions={['approvals.view']}>
+        <ApprovalManagement />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: 'notifications',
+    element: (
+      <AuthGuard requiredPermissions={['notifications.view']}>
+        <NotificationCenter />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: 'schedules',
+    element: (
+      <AuthGuard requiredPermissions={['schedules.view']}>
+        <ScheduleManagement />
+      </AuthGuard>
+    ),
   },
   {
     path: '*',

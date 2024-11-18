@@ -13,9 +13,16 @@ import {
   FundOutlined,
   ApartmentOutlined,
   LogoutOutlined,
+  CustomerServiceOutlined,
+  BarChartOutlined,
+  PayCircleOutlined,
+  AuditOutlined,
+  BellOutlined,
+  CalendarOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Button, theme, Breadcrumb, Avatar, Dropdown, message } from 'antd';
 import type { MenuProps } from 'antd';
+import { useAuth } from '@/contexts/AuthContext';
 
 const { Header, Sider, Content } = Layout;
 
@@ -31,6 +38,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+  const { user, logout } = useAuth();
+
+  // 获取当前路径的第一级路径作为默认展开的菜单项
+  const defaultOpenKey = '/' + location.pathname.split('/')[1];
 
   // 菜单项配置
   const menuItems = [
@@ -136,6 +147,68 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       icon: <SettingOutlined />,
       label: '系统设置',
     },
+    {
+      key: '/service',
+      icon: <CustomerServiceOutlined />,
+      label: '客服管理',
+      children: [
+        {
+          key: '/service/tickets',
+          label: '工单管理',
+        },
+        {
+          key: '/service/satisfaction',
+          label: '满意度调查',
+        },
+        {
+          key: '/service/complaints',
+          label: '投诉处理',
+        },
+      ],
+    },
+    {
+      key: '/analytics',
+      icon: <BarChartOutlined />,
+      label: '报表分析',
+    },
+    {
+      key: '/finance',
+      icon: <PayCircleOutlined />,
+      label: '财务管理',
+      children: [
+        {
+          key: '/finance/payments',
+          label: '收款管理',
+        },
+        {
+          key: '/finance/invoices',
+          label: '开票管理',
+        },
+        {
+          key: '/finance/receivables',
+          label: '应收账款',
+        },
+        {
+          key: '/finance/analytics',
+          label: '收支统计',
+        },
+      ],
+    },
+    {
+      key: '/approvals',
+      icon: <AuditOutlined />,
+      label: '审批管理',
+    },
+    {
+      key: '/notifications',
+      icon: <BellOutlined />,
+      label: '消息通知',
+    },
+    {
+      key: '/schedules',
+      icon: <CalendarOutlined />,
+      label: '日程管理',
+    },
   ];
 
   // 用户下拉菜单项
@@ -164,20 +237,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   // 处理用户菜单点击
   const handleUserMenuClick: MenuProps['onClick'] = ({ key }) => {
     if (key === 'logout') {
-      // 清除登录信息
-      localStorage.removeItem('token');
+      logout();
       message.success('已退出登录');
-      // 使用 startTransition 包装导航操作
       startTransition(() => {
         navigate('/login');
       });
     } else if (key === 'profile') {
-      // 跳转到个人信息页面
-      // navigate('/profile');
       message.info('功能开发中');
     } else if (key === 'settings') {
-      // 跳转到账号设置页面
-      // navigate('/account-settings');
       message.info('功能开发中');
     }
   };
@@ -265,7 +332,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
-          defaultOpenKeys={['/users']}
+          defaultOpenKeys={[defaultOpenKey]}
           items={menuItems}
           onClick={({ key }) => navigate(key)}
         />
@@ -305,13 +372,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             >
               <div style={{ cursor: 'pointer' }}>
                 <Avatar 
-                  style={{ 
-                    backgroundColor: '#1890ff',
-                    marginRight: 8,
-                  }} 
+                  style={{ marginRight: 8 }}
+                  src={user?.avatar}
                   icon={<UserOutlined />}
                 />
-                <span>管理员</span>
+                <span>{user?.username}</span>
               </div>
             </Dropdown>
           </div>

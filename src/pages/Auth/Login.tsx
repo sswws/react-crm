@@ -1,7 +1,8 @@
 import React from 'react';
-import { Card, Form, Input, Button, Checkbox, message, Typography, Space } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { Card, Form, Input, Button, Checkbox, message, Typography, Space, Divider } from 'antd';
+import { UserOutlined, LockOutlined, WechatOutlined, GithubOutlined, GoogleOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const { Title } = Typography;
 
@@ -14,21 +15,55 @@ interface LoginFormValues {
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const { login } = useAuth();
 
   const onFinish = async (values: LoginFormValues) => {
     try {
       // 这里应该调用登录 API
       console.log('登录信息:', values);
       
-      // 模拟登录成功
+      // 模拟登录成功，添加权限信息
+      const mockUserData = {
+        id: '1',
+        username: values.username,
+        role: 'admin',
+        avatar: 'https://xsgames.co/randomusers/avatar.php?g=pixel',
+        permissions: [
+          'dashboard',
+          'users.view', 'users.create', 'users.edit', 'users.delete',
+          'roles.view', 'roles.manage',
+          'permissions.manage',
+          'customers.view', 'customers.contacts.view', 'customers.follow.view',
+          'business.opportunities.view', 'business.contracts.view', 'business.quotes.view',
+          'marketing.campaigns.view', 'marketing.leads.view',
+          'products.view', 'products.categories.view',
+          'service.tickets.view',
+          'analytics.view',
+          'teams',
+          'settings',
+          'finance.payments.view',
+          'finance.invoices.view',
+          'finance.receivables.view',
+          'finance.analytics.view',
+          'approvals.view',
+          'approvals.approve',
+          'approvals.reject',
+          'notifications.view',
+          'schedules.view',
+          'schedules.manage',
+        ]
+      };
+      
+      login('mock_token', mockUserData);
       message.success('登录成功');
-      // 存储 token 等信息
-      localStorage.setItem('token', 'mock_token');
-      // 跳转到首页
       navigate('/');
     } catch (error) {
       message.error('登录失败，请重试');
     }
+  };
+
+  const handleThirdPartyLogin = (type: string) => {
+    message.info(`${type}登录功能开发中`);
   };
 
   return (
@@ -95,6 +130,28 @@ const Login: React.FC = () => {
               <Link to="/register">立即注册</Link>
             </Space>
           </Form.Item>
+
+          <Divider>其他登录方式</Divider>
+          
+          <div style={{ textAlign: 'center' }}>
+            <Space size="large">
+              <Button 
+                type="link" 
+                icon={<WechatOutlined style={{ fontSize: 24, color: '#07C160' }} />}
+                onClick={() => handleThirdPartyLogin('微信')}
+              />
+              <Button 
+                type="link" 
+                icon={<GithubOutlined style={{ fontSize: 24 }} />}
+                onClick={() => handleThirdPartyLogin('GitHub')}
+              />
+              <Button 
+                type="link" 
+                icon={<GoogleOutlined style={{ fontSize: 24, color: '#DB4437' }} />}
+                onClick={() => handleThirdPartyLogin('Google')}
+              />
+            </Space>
+          </div>
         </Form>
       </Card>
     </div>
